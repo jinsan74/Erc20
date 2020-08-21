@@ -1,5 +1,6 @@
 /*
  * SejongTelecom 코어기술개발팀
+ * @author JinSan
  */
 
 package main
