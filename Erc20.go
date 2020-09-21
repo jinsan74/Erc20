@@ -132,22 +132,32 @@ func (cc *ERC20Chaincode) Init(stub shim.ChaincodeStubInterface) sc.Response {
 
 // Invoke ChainCode
 func (cc *ERC20Chaincode) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
-	fcn, params := stub.GetFunctionAndParameters()
+	fcn, orgParam := stub.GetFunctionAndParameters()
 
-	if len(params) != 1 {
+	if len(orgParam) != 1 {
 		return shim.Error("incorrect number of parameter")
 	}
 
+	orgString := orgParam[0]
+
+	//--트랜잭션 String 변환 : realfunc 추가----
+	var jsonMap map[string]string
+	json.Unmarshal([]byte(orgString), &jsonMap)
+	jsonMap["realfunc"] = fcn
+	newString, _ := json.Marshal(jsonMap)
+	fmt.Println(string(newString))
+	//--------------------------------------
+
 	// 지갑형 트랜잭션 VAILD WALLET CHECK 및 지갑주소/파라미터 파싱
 	chainCodeFunc := "vaildWallet"
-	invokeArgs := toChaincodeArgs(chainCodeFunc, params[0])
+	invokeArgs := toChaincodeArgs(chainCodeFunc, string(newString))
 	channel := stub.GetChannelID()
-	response := stub.InvokeChaincode("vaildW", invokeArgs, channel)
+	response := stub.InvokeChaincode("vaildWallet", invokeArgs, channel)
 
 	if response.Status != shim.OK {
 		errStr := fmt.Sprintf("Failed to vaildWallet chaincode. Got error: %s", string(response.Payload))
 		fmt.Printf(errStr)
-		return sc.Response{Status: 501, Message: "vaild Wallet Fail", Payload: nil}
+		return sc.Response{Status: 501, Message: "vaild Wallet Fail!", Payload: nil}
 	}
 	//-----------------------------------------------------------------------
 
@@ -306,7 +316,7 @@ func (cc *ERC20Chaincode) transfer(stub shim.ChaincodeStubInterface, params []st
 	}
 
 	//--보내는 금액보다 보유한 금액이 많은지 체크 하는 부분------
-	// 해당 로직이 있으면 High Throughput 기능 동작 안함
+	//해당 로직이 있으면 High Throughput 기능 동작 안함
 	newParam := []string{callerAddress, callerAddress}
 	callerAmount := cc.balanceOf(stub, newParam)
 	callerAmountInt, err := strconv.ParseUint(string(callerAmount.GetPayload()), 10, 64)
