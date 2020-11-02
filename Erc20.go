@@ -138,30 +138,11 @@ func (cc *ERC20Chaincode) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return shim.Error("incorrect number of parameter")
 	}
 
-	orgString := orgParam[0]
+	getParams := callVaildWallet(stub)
 
-	//--트랜잭션 String 변환 : realfunc 추가----
-	var jsonMap map[string]string
-	json.Unmarshal([]byte(orgString), &jsonMap)
-	jsonMap["realfunc"] = fcn
-	newString, _ := json.Marshal(jsonMap)
-	fmt.Println(string(newString))
-	//--------------------------------------
-
-	// 지갑형 트랜잭션 VAILD WALLET CHECK 및 지갑주소/파라미터 파싱
-	chainCodeFunc := "vaildWallet"
-	invokeArgs := toChaincodeArgs(chainCodeFunc, string(newString))
-	channel := stub.GetChannelID()
-	response := stub.InvokeChaincode("vaildWallet", invokeArgs, channel)
-
-	if response.Status != shim.OK {
-		errStr := fmt.Sprintf("Failed to vaildWallet chaincode. Got error: %s", string(response.Payload))
-		fmt.Printf(errStr)
-		return sc.Response{Status: 501, Message: "vaild Wallet Fail!", Payload: nil}
+	if getParams == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
 	}
-	//-----------------------------------------------------------------------
-
-	getParams := strings.Split(string(response.Payload), ",")
 
 	switch fcn {
 	case "totalSupply":
@@ -195,6 +176,80 @@ func (cc *ERC20Chaincode) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 	default:
 		return sc.Response{Status: 404, Message: "404 Not Found", Payload: nil}
 	}
+}
+
+// vaildWallet 호출 함수
+func callVaildWallet(stub shim.ChaincodeStubInterface) []string {
+
+	fcn, orgParam := stub.GetFunctionAndParameters()
+
+	isInvoke := "Y"
+
+	switch fcn {
+	case "totalSupply":
+		isInvoke = "N"
+	case "balanceOf":
+		isInvoke = "N"
+	case "transfer":
+		isInvoke = "Y"
+	case "allowance":
+		isInvoke = "N"
+	case "approve":
+		isInvoke = "Y"
+	case "approvalList":
+		isInvoke = "N"
+	case "transferFrom":
+		isInvoke = "Y"
+	case "transferOtherToken":
+		isInvoke = "Y"
+	case "increaseAllowance":
+		isInvoke = "Y"
+	case "decreaseAllowance":
+		isInvoke = "Y"
+	case "mint":
+		isInvoke = "Y"
+	case "burn":
+		isInvoke = "Y"
+	case "rowCount":
+		isInvoke = "N"
+	case "pruneFast":
+		isInvoke = "Y"
+	default:
+		return nil
+	}
+
+	retParams := orgParam
+
+	if strings.Compare(isInvoke, "Y") == 0 {
+
+		orgString := orgParam[0]
+
+		//--트랜잭션 String 변환 : realfunc 추가----
+		var jsonMap map[string]string
+		json.Unmarshal([]byte(orgString), &jsonMap)
+		jsonMap["realfunc"] = fcn
+		newString, _ := json.Marshal(jsonMap)
+		fmt.Println(string(newString))
+		//--------------------------------------
+
+		// 지갑형 트랜잭션 VAILD WALLET CHECK 및 지갑주소/파라미터 파싱
+		chainCodeFunc := "vaildWallet"
+		invokeArgs := toChaincodeArgs(chainCodeFunc, string(newString))
+		channel := stub.GetChannelID()
+		response := stub.InvokeChaincode("vaildWallet", invokeArgs, channel)
+
+		if response.Status != shim.OK {
+			errStr := fmt.Sprintf("Failed to vaildWallet chaincode. Got error: %s", string(response.Payload))
+			fmt.Printf(errStr)
+			return nil
+			//return sc.Response{Status: 501, Message: "vaild Wallet Fail!", Payload: nil}
+		}
+		//-----------------------------------------------------------------------
+
+		retParams = strings.Split(string(response.Payload), ",")
+	}
+
+	return retParams
 }
 
 // 외부 체인코드 호출시 파라미터 만드는 함수
@@ -241,11 +296,11 @@ func (cc *ERC20Chaincode) totalSupply(stub shim.ChaincodeStubInterface, params [
 // Returns 토큰수
 func (cc *ERC20Chaincode) balanceOf(stub shim.ChaincodeStubInterface, params []string) sc.Response {
 
-	if len(params) != 2 {
+	if len(params) != 1 {
 		return shim.Error("incorrect number of parameters")
 	}
 
-	queryAddress := params[1]
+	queryAddress := params[0]
 
 	balanceResultsIterator, err := stub.GetStateByPartialCompositeKey(compositKeyIdx, []string{queryAddress})
 	if err != nil {
@@ -278,7 +333,7 @@ func (cc *ERC20Chaincode) balanceOf(stub shim.ChaincodeStubInterface, params []s
 		operation := keyParts[1]
 		valueStr := keyParts[2]
 
-		fmt.Println("DATA:" + operation + ":" + valueStr)
+		//fmt.Println("DATA:" + operation + ":" + valueStr)
 
 		value, convErr := strconv.Atoi(valueStr)
 		if convErr != nil {
@@ -303,10 +358,10 @@ func (cc *ERC20Chaincode) transfer(stub shim.ChaincodeStubInterface, params []st
 
 	callerAddress, recipientAddress, transferAmount := params[0], params[1], params[2]
 	transferAmount = strings.Trim(transferAmount, " ")
-	fmt.Println("TRANSAMT:", transferAmount)
+	fmt.Println("TRANSFER:", callerAddress+":"+recipientAddress+":"+transferAmount)
 	// Token Value가 양수 인지 조사
 	transferAmountInt, err := strconv.ParseUint(transferAmount, 10, 64)
-
+	//fmt.Println("TRANSFER INT :", transferAmountInt)
 	if err != nil {
 		return shim.Error("transfer amount must be integer, err" + err.Error() + ":" + string(transferAmountInt))
 	}
@@ -317,7 +372,7 @@ func (cc *ERC20Chaincode) transfer(stub shim.ChaincodeStubInterface, params []st
 
 	//--보내는 금액보다 보유한 금액이 많은지 체크 하는 부분------
 	//해당 로직이 있으면 High Throughput 기능 동작 안함
-	newParam := []string{callerAddress, callerAddress}
+	newParam := []string{callerAddress}
 	callerAmount := cc.balanceOf(stub, newParam)
 	callerAmountInt, err := strconv.ParseUint(string(callerAmount.GetPayload()), 10, 64)
 	if err != nil {
@@ -329,25 +384,37 @@ func (cc *ERC20Chaincode) transfer(stub shim.ChaincodeStubInterface, params []st
 	}
 	//------------------------------------------------
 
-	// Save the Caller DATA
+	// Save the Reipient DATA
 	txid := stub.GetTxID()
+	recipientCompositeKey, err := stub.CreateCompositeKey(compositKeyIdx, []string{recipientAddress, "+", transferAmount, txid})
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Could not create a Receiver composite key for %s: %s", recipientAddress, err.Error()))
+	}
+	recipientCompositePutErr := stub.PutState(recipientCompositeKey, []byte{0x00})
+	if recipientCompositePutErr != nil {
+		return shim.Error(fmt.Sprintf("[RECEIVER]Could not put operation for %s in the ledger: %s", recipientAddress, recipientCompositePutErr.Error()))
+	}
+
+	// Save the Caller DATA
 	callerCompositeKey, err := stub.CreateCompositeKey(compositKeyIdx, []string{callerAddress, "-", transferAmount, txid})
 	if err != nil {
+
+		deltaRowDelErr := stub.DelState(recipientCompositeKey)
+		if deltaRowDelErr != nil {
+			return shim.Error(fmt.Sprintf("Could not delete delta row: %s", deltaRowDelErr.Error()))
+		}
+
 		return shim.Error(fmt.Sprintf("Could not create a caller composite key for %s: %s", callerAddress, err.Error()))
 	}
 	callerCompositePutErr := stub.PutState(callerCompositeKey, []byte{0x00})
 	if callerCompositePutErr != nil {
-		return shim.Error(fmt.Sprintf("Could not put operation for %s in the ledger: %s", callerAddress, callerCompositePutErr.Error()))
-	}
 
-	// Save the Reipient DATA
-	recipientCompositeKey, err := stub.CreateCompositeKey(compositKeyIdx, []string{recipientAddress, "+", transferAmount, txid})
-	if err != nil {
-		return shim.Error(fmt.Sprintf("Could not create a caller composite key for %s: %s", recipientAddress, err.Error()))
-	}
-	recipientCompositePutErr := stub.PutState(recipientCompositeKey, []byte{0x00})
-	if recipientCompositePutErr != nil {
-		return shim.Error(fmt.Sprintf("Could not put operation for %s in the ledger: %s", recipientAddress, recipientCompositePutErr.Error()))
+		deltaRowDelErr := stub.DelState(recipientCompositeKey)
+		if deltaRowDelErr != nil {
+			return shim.Error(fmt.Sprintf("Could not delete delta row: %s", deltaRowDelErr.Error()))
+		}
+
+		return shim.Error(fmt.Sprintf("[Caller]Could not put operation for %s in the ledger: %s", callerAddress, callerCompositePutErr.Error()))
 	}
 
 	// Emit Transfer Event
@@ -365,11 +432,11 @@ func (cc *ERC20Chaincode) transfer(stub shim.ChaincodeStubInterface, params []st
 }
 
 func (cc *ERC20Chaincode) rowCount(stub shim.ChaincodeStubInterface, params []string) sc.Response {
-	if len(params) != 2 {
+	if len(params) != 1 {
 		return shim.Error("incorrect number of parameters")
 	}
 
-	queryAddress := params[1]
+	queryAddress := params[0]
 
 	balanceResultsIterator, err := stub.GetStateByPartialCompositeKey(compositKeyIdx, []string{queryAddress})
 	if err != nil {
@@ -827,23 +894,24 @@ func (cc *ERC20Chaincode) burn(stub shim.ChaincodeStubInterface, params []string
 	return shim.Success([]byte("burn success"))
 }
 
-// High Throughput 가비지 데이터를 정리 해줌 - 관리자만 실행 가능
+// High Throughput 가비지 데이터를 정리 해줌
 // params - ownerAddress, targetAddress
 func (cc *ERC20Chaincode) pruneFast(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments, expecting 2")
 	}
 
-	ownerAddress := args[0]
-	targetAddress := args[1]
+	targetAddress := args[0]
 
 	// AMDIN 인지 확인
-	isAdmin := checkAdmin(stub, ownerAddress)
-	fmt.Println("IS ADMIN:", isAdmin)
-	if !isAdmin {
-		return shim.Error("This Function Only Excute Admin!")
-	}
+	/*
+		isAdmin := checkAdmin(stub, ownerAddress)
+		fmt.Println("IS ADMIN:", isAdmin)
+		if !isAdmin {
+			return shim.Error("This Function Only Excute Admin!")
+		}
+	*/
 
 	deltaResultsIterator, deltaErr := stub.GetStateByPartialCompositeKey(compositKeyIdx, []string{targetAddress})
 	if deltaErr != nil {
