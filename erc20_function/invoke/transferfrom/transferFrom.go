@@ -3,6 +3,8 @@ package transferfrom
 import (
 	"strconv"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"sejongtelecom.net/erc20/erc20_function/invoke/approve"
 	"sejongtelecom.net/erc20/erc20_function/invoke/transfer"
 	"sejongtelecom.net/erc20/erc20_function/query/allowance"
@@ -14,6 +16,12 @@ import (
 // From 계좌에서 To 계좌로 Admount 토큰을 전송 , 단 Approve 함수를 통해 권한을 위임 받은 Spender만 할 수 있음
 // parmas - spenderAddress(실행 ADDRESS), ownerAddress(원래토큰주인) , recipientAddress(받을사람), Amount
 func TransferFrom(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(params) != 4 {
 		return shim.Error("incorrect number of params")

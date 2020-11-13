@@ -3,6 +3,8 @@ package transferothertoken
 import (
 	"fmt"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
@@ -10,6 +12,12 @@ import (
 // 다른 Chain 코드의 토큰을 이동
 // params - ownerAddress, chaincode name, toAddress, Amount
 func TransferOtherToken(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(params) != 4 {
 		return shim.Error("incorrect number of params")

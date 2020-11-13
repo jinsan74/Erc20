@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
@@ -29,6 +31,12 @@ type AdminMetadata struct {
 // Owner의 토큰을 증가시키고 전체 발행량을 증가(토큰 추가 발행) - 관리자만 실행가능
 // params - ownerAddress, Amount
 func Mint(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(params) != 2 {
 		return shim.Error("incorrect number of params")

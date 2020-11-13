@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"sejongtelecom.net/erc20/erc20_function/query/balanceof"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -24,6 +26,12 @@ var compositKeyIdx string = "balanceOf"
 // 토큰전송 - High Throughput 적용
 // params - ownerAddress, toAddress, Amount
 func Transfer(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	callerAddress, recipientAddress, transferAmount := params[0], params[1], params[2]
 	transferAmount = strings.Trim(transferAmount, " ")

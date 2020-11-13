@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
@@ -29,6 +31,12 @@ type AdminMetadata struct {
 // 지정한 계정의 토큰을 소각함 - 관리자만 실행 가능(관리자가 남의 코인을 삭제 가능 한 것이 맞는지?)
 // params - ownerAddress, recipientAddress, Amount
 func Burn(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(params) != 3 {
 		return shim.Error("incorrect number of params")
