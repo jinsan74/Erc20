@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
@@ -20,6 +22,12 @@ var compositKeyIdx string = "balanceOf"
 // High Throughput 가비지 데이터를 정리 해줌
 // params - ownerAddress, targetAddress
 func PruneFast(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	args = wallet.CallVaildWallet(stub)
+	if args == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments, expecting 2")

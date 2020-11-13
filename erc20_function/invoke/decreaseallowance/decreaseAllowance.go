@@ -3,6 +3,8 @@ package decreaseallowance
 import (
 	"strconv"
 
+	"sejongtelecom.net/erc20/wallet"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 	"sejongtelecom.net/erc20/erc20_function/invoke/approve"
@@ -12,6 +14,12 @@ import (
 // Allowance 값을 감소
 // params - ownerAddress, spenderAddress, Amount
 func DecreaseAllowance(stub shim.ChaincodeStubInterface, params []string) sc.Response {
+
+	// Vaild Wallet을 호출하여 Parameter 추출 및 유효성 검사.
+	params = wallet.CallVaildWallet(stub)
+	if params == nil {
+		return sc.Response{Status: 501, Message: "Vaild Wallet Error!", Payload: nil}
+	}
 
 	if len(params) != 3 {
 		return shim.Error("incorrect number of params")

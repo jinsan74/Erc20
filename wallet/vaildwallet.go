@@ -24,7 +24,7 @@ import (
 /*
  * 트랜잭션 체크 함수 : 지갑주소와 실제 트랜잭션 파라미터를 리턴한다.
  */
-func VaildWallet(jsonData string) ([]string, error) {
+func vaildWallet(jsonData string) ([]string, error) {
 
 	var err error
 
