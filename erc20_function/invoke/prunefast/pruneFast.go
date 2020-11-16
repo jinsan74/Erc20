@@ -1,21 +1,14 @@
 package prunefast
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"sejongtelecom.net/erc20/wallet"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
-
-// 관리자 Address 저장 구조체
-type AdminMetadata struct {
-	Adminaddress string `json:"adminaddress"`
-}
 
 var compositKeyIdx string = "balanceOf"
 
@@ -37,7 +30,7 @@ func PruneFast(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	// AMDIN 인지 확인
 	/*
-		isAdmin := checkAdmin(stub, ownerAddress)
+		isAdmin := wallet.CheckAdmin(stub, ownerAddress)
 		fmt.Println("IS ADMIN:", isAdmin)
 		if !isAdmin {
 			return shim.Error("This Function Only Excute Admin!")
@@ -131,40 +124,4 @@ func update(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success([]byte(fmt.Sprintf("Successfully added %s%s to %s", op, args[1], address)))
-}
-
-//Admin 지갑인지 확인
-func checkAdmin(stub shim.ChaincodeStubInterface, chkAddress string) bool {
-
-	//-----AMDIN 인지 확인----------------------------------
-	adminMeta := AdminMetadata{}
-	adminMetaBytes, err := stub.GetState("ADMINADDRESS")
-	if err != nil {
-		fmt.Println("ERR1")
-		return false
-	}
-	err = json.Unmarshal(adminMetaBytes, &adminMeta)
-	if err != nil {
-		fmt.Println("ERR2")
-		return false
-	}
-
-	adminAddressBytes, err := json.Marshal(adminMeta.Adminaddress)
-	if err != nil {
-		fmt.Println("ERR3")
-		return false
-	}
-
-	realAddress := string(adminAddressBytes)
-	realAddress = strings.Replace(realAddress, "\"", "", -1)
-
-	fmt.Println("REALADDR:" + realAddress)
-	fmt.Println("CHKADDR:" + chkAddress)
-
-	if realAddress == chkAddress {
-		return true
-	} else {
-		return false
-	}
-	//----------------------------------------------------
 }
