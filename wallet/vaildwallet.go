@@ -11,9 +11,9 @@ import (
 	"crypto/sha256"
 	"encoding/asn1"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 
 	"sejongtelecom.net/erc20/model"
@@ -24,22 +24,29 @@ import (
 /*
  * 트랜잭션 체크 함수 : 지갑주소와 실제 트랜잭션 파라미터를 리턴한다.
  */
-func vaildWallet(jsonData string) ([]string, error) {
+func vaildWallet(jsonMap map[string]string) ([]string, error) {
 
 	var err error
 
-	//fmt.Println("JSONDATA:", jsonData)
-
-	//--Json 파라미터 파싱----------------------------------
-	var jsonMap map[string]string
-	json.Unmarshal([]byte(jsonData), &jsonMap)
 	//--필수 파라미터 체크------------
-	if jsonMap["publickey"] == "" || jsonMap["sigmsg"] == "" {
-		return nil, model.NewCustomError(model.MandatoryPrameterErrorType, "2", "incorrect number of transaction parameter")
+	if jsonMap["publickey"] == "" || jsonMap["sigmsg"] == "" || jsonMap["nowtime"] == "" || jsonMap["txtime"] == "" {
+		return nil, model.NewCustomError(model.MandatoryPrameterErrorType, "Wallet Parameter", "incorrect number of transaction parameter")
 	}
 	publicKeyStr := jsonMap["publickey"]
 	transData := jsonMap["transdata"]
 	sigData := jsonMap["sigmsg"]
+	nowTime := jsonMap["nowtime"]
+	txTime := jsonMap["txtime"]
+
+	nowTimeStamp, _ := strconv.ParseInt(nowTime, 10, 64)
+	txTimeStamp, _ := strconv.ParseInt(txTime, 10, 64)
+
+	betweenSec := nowTimeStamp - txTimeStamp
+	fmt.Println("BETWEEN SEC:", betweenSec)
+
+	if betweenSec > 10 || betweenSec < -10 {
+		return nil, model.NewCustomError(model.TxTimeStampErrorType, "", "Must Be Tx Time inner +-10 Sec")
+	}
 
 	//--Public Key 생성----------
 	publicKeySlice := strings.Split(publicKeyStr, ":")
@@ -48,7 +55,7 @@ func vaildWallet(jsonData string) ([]string, error) {
 	ePubKey := hexToPublicKey(xHexStr, yHexStr)
 
 	//--ORG SIG MSG--------------------
-	orgSigMsg := publicKeyStr + transData
+	orgSigMsg := publicKeyStr + txTime
 
 	//--ORG SIG MSG Hash 처리---------------------------
 	orgSigMsgByte := []byte(orgSigMsg)

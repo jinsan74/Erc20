@@ -1,7 +1,9 @@
 package wallet
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -11,14 +13,18 @@ func CallVaildWallet(stub shim.ChaincodeStubInterface) []string {
 
 	_, orgParam := stub.GetFunctionAndParameters()
 
-	retParams := orgParam
+	nowTimestamp, _ := stub.GetTxTimestamp()
 
-	var err error
-	orgString := orgParam[0]
-	retParams, err = vaildWallet(orgString)
+	var jsonMap map[string]string
+	json.Unmarshal([]byte(orgParam[0]), &jsonMap)
+
+	nowTime := nowTimestamp.GetSeconds()
+	jsonMap["nowtime"] = strconv.FormatInt(nowTime, 10)
+
+	retParams, err := vaildWallet(jsonMap)
 
 	if err != nil {
-		fmt.Println("THIS IS ERR...", err.Error())
+		fmt.Println("Call VaildWallet ERR...", err.Error())
 		return nil
 	}
 

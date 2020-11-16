@@ -6,6 +6,7 @@ const (
 	MarshalErrorType                     = "Marshal"
 	MandatoryPrameterErrorType           = "Mandatory"
 	SignatureErrorType                   = "Signature"
+	TxTimeStampErrorType                 = "TxTimestamp"
 	UnMarshalErrorType                   = "UnMarshal"
 	ConvertErrorType                     = "Convert"
 	PutStateErrorType                    = "PutState"
