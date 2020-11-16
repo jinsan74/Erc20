@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"sejongtelecom.net/erc20/wallet"
 
@@ -21,11 +20,6 @@ type ERC20Metadata struct {
 	Symbol      string `json:"symbol"`
 	Owner       string `json:"owner"`
 	TotalSupply uint64 `json:"totalSupply"`
-}
-
-// 관리자 Address 저장 구조체
-type AdminMetadata struct {
-	Adminaddress string `json:"adminaddress"`
 }
 
 // 지정한 계정의 토큰을 소각함 - 관리자만 실행 가능(관리자가 남의 코인을 삭제 가능 한 것이 맞는지?)
@@ -45,7 +39,7 @@ func Burn(stub shim.ChaincodeStubInterface, params []string) sc.Response {
 	ownerAddress, recipientAddress, burnAmount := params[0], params[1], params[2]
 
 	// AMDIN 인지 확인
-	isAdmin := checkAdmin(stub, ownerAddress)
+	isAdmin := wallet.CheckAdmin(stub, ownerAddress)
 	fmt.Println("IS ADMIN:", isAdmin)
 
 	if !isAdmin {
@@ -109,40 +103,4 @@ func Burn(stub shim.ChaincodeStubInterface, params []string) sc.Response {
 	}
 
 	return shim.Success([]byte("burn success"))
-}
-
-//Admin 지갑인지 확인
-func checkAdmin(stub shim.ChaincodeStubInterface, chkAddress string) bool {
-
-	//-----AMDIN 인지 확인----------------------------------
-	adminMeta := AdminMetadata{}
-	adminMetaBytes, err := stub.GetState("ADMINADDRESS")
-	if err != nil {
-		fmt.Println("ERR1")
-		return false
-	}
-	err = json.Unmarshal(adminMetaBytes, &adminMeta)
-	if err != nil {
-		fmt.Println("ERR2")
-		return false
-	}
-
-	adminAddressBytes, err := json.Marshal(adminMeta.Adminaddress)
-	if err != nil {
-		fmt.Println("ERR3")
-		return false
-	}
-
-	realAddress := string(adminAddressBytes)
-	realAddress = strings.Replace(realAddress, "\"", "", -1)
-
-	fmt.Println("REALADDR:" + realAddress)
-	fmt.Println("CHKADDR:" + chkAddress)
-
-	if realAddress == chkAddress {
-		return true
-	} else {
-		return false
-	}
-	//----------------------------------------------------
 }

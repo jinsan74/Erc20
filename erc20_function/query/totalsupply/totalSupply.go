@@ -8,9 +8,6 @@ import (
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
-// type ERC20Chaincode struct {
-// }
-
 //토큰 정보 저장 구조체
 type ERC20Metadata struct {
 	Name        string `json:"name"`
