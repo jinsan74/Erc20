@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"strings"
 
-	"sejongtelecom.net/erc20/model"
+	"github.com/jinsan74/Erc20/model"
 
 	"golang.org/x/crypto/ripemd160"
 )

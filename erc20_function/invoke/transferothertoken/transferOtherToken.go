@@ -3,7 +3,7 @@ package transferothertoken
 import (
 	"fmt"
 
-	"sejongtelecom.net/erc20/wallet"
+	"github.com/jinsan74/Erc20/wallet"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"

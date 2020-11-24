@@ -1,4 +1,4 @@
-module sejongtelecom.net/erc20
+module github.com/jinsan74/Erc20
 
 go 1.13
 

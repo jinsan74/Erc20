@@ -3,12 +3,12 @@ package decreaseallowance
 import (
 	"strconv"
 
-	"sejongtelecom.net/erc20/wallet"
+	"github.com/jinsan74/Erc20/wallet"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
-	"sejongtelecom.net/erc20/erc20_function/invoke/approve"
-	"sejongtelecom.net/erc20/erc20_function/query/allowance"
+	"github.com/jinsan74/Erc20/erc20_function/invoke/approve"
+	"github.com/jinsan74/Erc20/erc20_function/query/allowance"
 )
 
 // Allowance 값을 감소

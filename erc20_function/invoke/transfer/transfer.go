@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"sejongtelecom.net/erc20/wallet"
+	"github.com/jinsan74/Erc20/wallet"
 
-	"sejongtelecom.net/erc20/erc20_function/query/balanceof"
+	"github.com/jinsan74/Erc20/erc20_function/query/balanceof"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"

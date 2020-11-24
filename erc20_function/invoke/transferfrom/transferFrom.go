@@ -3,11 +3,11 @@ package transferfrom
 import (
 	"strconv"
 
-	"sejongtelecom.net/erc20/wallet"
+	"github.com/jinsan74/Erc20/wallet"
 
-	"sejongtelecom.net/erc20/erc20_function/invoke/approve"
-	"sejongtelecom.net/erc20/erc20_function/invoke/transfer"
-	"sejongtelecom.net/erc20/erc20_function/query/allowance"
+	"github.com/jinsan74/Erc20/erc20_function/invoke/approve"
+	"github.com/jinsan74/Erc20/erc20_function/invoke/transfer"
+	"github.com/jinsan74/Erc20/erc20_function/query/allowance"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
