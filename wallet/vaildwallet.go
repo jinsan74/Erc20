@@ -45,7 +45,7 @@ func vaildWallet(jsonMap map[string]string) ([]string, error) {
 	fmt.Println("BETWEEN SEC:", betweenSec)
 
 	if betweenSec > 10 || betweenSec < -10 {
-		return nil, model.NewCustomError(model.TxTimeStampErrorType, "", "Must Be Tx Time inner +-10 Sec")
+		//return nil, model.NewCustomError(model.TxTimeStampErrorType, "", "Must Be Tx Time inner +-10 Sec")
 	}
 
 	//--Public Key 생성----------
