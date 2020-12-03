@@ -101,7 +101,11 @@ func vaildWallet(jsonMap map[string]string) ([]string, error) {
 	}
 
 	fmt.Println("WALLET Address:", walletAddr)
-	returnMsg := walletAddr + "," + transData
+	returnMsg := walletAddr
+	if len(transData) > 0 {
+		returnMsg = walletAddr + "," + transData
+	}
+
 	retParams := strings.Split(returnMsg, ",")
 
 	return retParams, nil
