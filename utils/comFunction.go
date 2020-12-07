@@ -3,9 +3,9 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
 // 토큰 Transfer
@@ -21,7 +21,7 @@ func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName s
 	fmt.Println(string(newString))
 
 	chainCodeFunc := "transfer"
-	invokeArgs := toChaincodeArgs(chainCodeFunc, string(newString))
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(newString))
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
 
@@ -34,7 +34,7 @@ func DoBalanceOf(stub shim.ChaincodeStubInterface, toaddress string, tokenName s
 
 	// 지갑형 트랜잭션 VAILD WALLET CHECK 및 지갑주소/파라미터 파싱
 	chainCodeFunc := "balanceOf"
-	invokeArgs := toChaincodeArgs(chainCodeFunc, toaddress)
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, toaddress)
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
 
@@ -65,13 +65,12 @@ func GetNowDt(stub shim.ChaincodeStubInterface) int64 {
 }
 
 // 데이터 저장
-func SaveMetaData(stub shim.ChaincodeStubInterface, dataKey string, metaDataBytes []byte]) sc.Response {
+func SaveMetaData(stub shim.ChaincodeStubInterface, dataKey string, metaDataBytes []byte) sc.Response {
 
 	// 저장
-	err = stub.PutState(dataKey, metaDataBytes)
+	err := stub.PutState(dataKey, metaDataBytes)
 	if err != nil {
 		return shim.Error("failed to PutState, error: " + err.Error())
 	}
-
 	return shim.Success(nil)
 }
