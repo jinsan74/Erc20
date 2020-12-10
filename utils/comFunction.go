@@ -8,6 +8,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 
+	"github.com/jinsan74/Erc20/model"
 	"github.com/jinsan74/Erc20/wallet"
 )
 
@@ -138,4 +139,21 @@ func SaveMetaData(stub shim.ChaincodeStubInterface, dataKey string, metaDataByte
 		return shim.Error("failed to PutState, error: " + err.Error())
 	}
 	return shim.Success(nil)
+}
+
+// CreateCompositKeyAndPut is
+// params : stub, keytype(composite objType), keycode(attribute), data(save data(doc))
+// return : compositeKey(string), err
+func CreateCompositKeyAndPut(stub shim.ChaincodeStubInterface, keytype string, keycode []string, data []byte) (*string, error) {
+	// create composite key
+	compositeKey, err := stub.CreateCompositeKey(keytype, keycode)
+	if err != nil {
+		return nil, model.NewCustomError(model.CreateCompositeKeyErrorType, "compositeKey", err.Error())
+	}
+	// save data
+	err = stub.PutState(compositeKey, data)
+	if err != nil {
+		return nil, model.NewCustomError(model.PutStateErrorType, compositeKey, err.Error())
+	}
+	return &compositeKey, nil
 }
