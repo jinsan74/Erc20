@@ -17,28 +17,32 @@ import (
 	"strings"
 
 	"github.com/jinsan74/Erc20/model"
-
 	"golang.org/x/crypto/ripemd160"
 )
 
 /*
  * 트랜잭션 체크 함수 : 지갑주소와 실제 트랜잭션 파라미터를 리턴한다.
  */
-func vaildWallet(jsonMap map[string]string) ([]string, error) {
+func vaildWallet(walletMeta WalletMeta) ([]string, error) {
 
 	var err error
-
 	//--필수 파라미터 체크------------
-	if jsonMap["publickey"] == "" || jsonMap["sigmsg"] == "" || jsonMap["nowtime"] == "" || jsonMap["txtime"] == "" {
+	if walletMeta.Publickey == "" || walletMeta.Sigmsg == "" || walletMeta.Txtime == "" {
 		return nil, model.NewCustomError(model.MandatoryPrameterErrorType, "Wallet Parameter", "incorrect number of transaction parameter")
 	}
-	publicKeyStr := jsonMap["publickey"]
-	transData := jsonMap["transdata"]
-	sigData := jsonMap["sigmsg"]
-	nowTime := jsonMap["nowtime"]
-	txTime := jsonMap["txtime"]
 
-	nowTimeStamp, _ := strconv.ParseInt(nowTime, 10, 64)
+	publicKeyStr := walletMeta.Publickey
+	transData := walletMeta.Transdata
+	sigData := walletMeta.Sigmsg
+	nowTimeStamp := walletMeta.Nowtime
+	txTime := walletMeta.Txtime
+	transJdata := ""
+
+	if len(walletMeta.Transjdata) > 0 {
+		transJdata = walletMeta.Transjdata
+	}
+
+	//nowTimeStamp, _ := strconv.ParseInt(nowTime, 10, 64)
 	txTimeStamp, _ := strconv.ParseInt(txTime, 10, 64)
 
 	betweenSec := nowTimeStamp - txTimeStamp
@@ -101,12 +105,20 @@ func vaildWallet(jsonMap map[string]string) ([]string, error) {
 	}
 
 	fmt.Println("WALLET Address:", walletAddr)
-	returnMsg := walletAddr
-	if len(transData) > 0 {
-		returnMsg = walletAddr + "," + transData
+
+	retParams := make([]string, 2)
+
+	if len(transJdata) > 0 {
+		retParams[0] = walletAddr
+		retParams[1] = transJdata
+		return retParams, nil
 	}
 
-	retParams := strings.Split(returnMsg, ",")
+	if len(transData) > 0 {
+		returnMsg := walletAddr
+		returnMsg = walletAddr + "," + transData
+		retParams = strings.Split(returnMsg, ",")
+	}
 
 	return retParams, nil
 }
