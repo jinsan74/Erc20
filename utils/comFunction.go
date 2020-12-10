@@ -7,9 +7,14 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 
-	"github.com/jinsan74/Erc20/model"
 	"github.com/jinsan74/Erc20/wallet"
 )
+
+// Multi Transfer를 이용하기 위한 데이터 구조체
+type TransferMeta struct {
+	Address string `json:"address"`
+	Amount  uint64 `json:"amount"`
+}
 
 // 토큰 Transfer
 func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName string) sc.Response {
@@ -49,7 +54,7 @@ func DoBalanceOf(stub shim.ChaincodeStubInterface, toaddress string, tokenName s
 }
 
 // 토큰 TransferMulti
-func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []model.TransferMeta, tokenName string) sc.Response {
+func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []TransferMeta, tokenName string) sc.Response {
 
 	_, orgParam := stub.GetFunctionAndParameters()
 
