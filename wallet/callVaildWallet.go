@@ -5,9 +5,15 @@ import (
 	"fmt"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/jinsan74/Erc20/utils"
 )
 
+// TransferMeta is Multi Transfer를 이용하기 위한 데이터 구조체
+type TransferMeta struct {
+	Address string `json:"address"`
+	Amount  uint64 `json:"amount"`
+}
+
+// WalletMeta is 지갑 데이터 구조체
 type WalletMeta struct {
 	Publickey  string `json:"publickey,omitempty"`
 	Txtime     string `json:"txtime,omitempty"`
@@ -17,12 +23,13 @@ type WalletMeta struct {
 	Sigmsg     string `json:"sigmsg,omitempty"`
 }
 
-// vaildWallet 호출 함수
+// CallVaildWallet is vaildWallet 호출 함수
 func CallVaildWallet(stub shim.ChaincodeStubInterface) []string {
 
 	_, orgParam := stub.GetFunctionAndParameters()
 
-	nowTime := utils.GetNowDt(stub)
+	nowTimestamp, _ := stub.GetTxTimestamp()
+	nowTime := nowTimestamp.GetSeconds()
 
 	walletMeta := WalletMeta{}
 	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
