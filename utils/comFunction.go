@@ -16,20 +16,18 @@ func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName s
 
 	_, orgParam := stub.GetFunctionAndParameters()
 
-	var jsonMap map[string]string
-	json.Unmarshal([]byte(orgParam[0]), &jsonMap)
-	jsonMap["transdata"] = transParam
+	walletMeta := wallet.WalletMeta{}
+	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
+	walletMeta.transdata = transParam
 
-	newString, _ := json.Marshal(jsonMap)
-	fmt.Println(string(newString))
+	realTrans, _ := json.Marshal(walletMeta)
 
 	chainCodeFunc := "transfer"
-	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(newString))
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
 
 	return response
-
 }
 
 // 토큰 balanceOf
