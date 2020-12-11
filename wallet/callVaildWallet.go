@@ -10,7 +10,7 @@ import (
 // TransferMeta is Multi Transfer를 이용하기 위한 데이터 구조체
 type TransferMeta struct {
 	Address string `json:"address"`
-	Amount  uint64 `json:"amount"`
+	Amount  uint64 `json:"amount,omitempty"`
 }
 
 // WalletMeta is 지갑 데이터 구조체
