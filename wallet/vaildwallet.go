@@ -84,14 +84,12 @@ func vaildWallet(walletMeta WalletMeta) ([]string, error) {
 
 	//--Public Key SAH256 처리----
 	shaPubKey := fmt.Sprintf("%x", publicKeyHash2)
-	//fmt.Println("SHA256 PUBKEY:", shaPubKey)
 
 	//--RIPEMD160 로직 추가---
 	h := ripemd160.New()
 	h.Write([]byte(shaPubKey))
 	shaPubKey = fmt.Sprintf("%x", h.Sum(nil))
 	//----------------------
-	//fmt.Println("RIPEMD160 PUBKEY:", shaPubKey)
 
 	//--Public Key SAH256 => BASE58Check 처리 ----
 	shaPubkeyStr := new(big.Int)
