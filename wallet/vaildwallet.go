@@ -102,7 +102,7 @@ func vaildWallet(walletMeta WalletMeta) ([]string, error) {
 		return nil, model.NewCustomError(model.SignatureErrorType, "", "Signature is Fail")
 	}
 
-	fmt.Println("Wallet Address:", walletAddr)
+	fmt.Println("Wallet Address: ", walletAddr)
 
 	retParams := make([]string, 2)
 
