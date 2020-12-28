@@ -102,11 +102,12 @@ func vaildWallet(walletMeta WalletMeta) ([]string, error) {
 		return nil, model.NewCustomError(model.SignatureErrorType, "", "Signature is Fail")
 	}
 
-	fmt.Println("WALLET Address:", walletAddr)
+	fmt.Println("Wallet Address: ", walletAddr)
 
 	retParams := make([]string, 1)
 
 	if len(transJdata) > 0 {
+		retParams = make([]string, 2)
 		retParams[0] = walletAddr
 		retParams[1] = transJdata
 		return retParams, nil
