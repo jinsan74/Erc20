@@ -81,10 +81,8 @@ func DoTokenFunc(stub shim.ChaincodeStubInterface, funcName string, transParam s
 func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
 
 	_, orgParam := stub.GetFunctionAndParameters()
-
 	walletMeta := wallet.WalletMeta{}
 	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
-
 	stTransferStr, _ := json.Marshal(stTransferMetaArr)
 	walletMeta.Transjdata = string(stTransferStr)
 	realTrans, _ := json.Marshal(walletMeta)
