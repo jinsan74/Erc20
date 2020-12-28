@@ -104,7 +104,7 @@ func vaildWallet(walletMeta WalletMeta) ([]string, error) {
 
 	fmt.Println("WALLET Address:", walletAddr)
 
-	retParams := make([]string, 1)
+	retParams := make([]string, 2)
 
 	if len(transJdata) > 0 {
 		retParams[0] = walletAddr
