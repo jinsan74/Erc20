@@ -44,6 +44,6 @@ func (cc *Chaincode) WalletTest(stub shim.ChaincodeStubInterface, args []string)
 	params := wallet.CallVaildWallet(stub)
 	fmt.Println("PARAM LEN:", len(params))
 	fmt.Println("WAddress:", params[0])
-
+	//fmt.Println("PARAM:", params[1])
 	return shim.Success(nil)
 }
