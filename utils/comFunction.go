@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -62,7 +63,6 @@ func DoTokenFunc(stub shim.ChaincodeStubInterface, funcName string, transParam s
 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
 	return response
 }
-
 
 // DoTransferMulti is 토큰 TransferMulti
 func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
@@ -169,4 +169,21 @@ func CreateCompositKeyAndPut(stub shim.ChaincodeStubInterface, keytype string, k
 		return nil, model.NewCustomError(model.PutStateErrorType, compositeKey, err.Error())
 	}
 	return &compositeKey, nil
+}
+
+//ConvertStringToUint64 is ..
+func ConvertStringToUint64(typeName, value string) (*uint64, error) {
+
+	// check amount is integer & positive
+	intValue, err := strconv.Atoi(value)
+
+	if err != nil {
+		return nil, model.NewCustomError(model.ConvertErrorType, typeName, " must be integer")
+	}
+
+	if intValue < 0 {
+		return nil, model.NewCustomError(model.ConvertErrorType, typeName, " must be positive")
+	}
+	uint64Value := uint64(intValue)
+	return &uint64Value, nil
 }
