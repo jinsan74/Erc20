@@ -187,3 +187,30 @@ func ConvertStringToUint64(typeName, value string) (*uint64, error) {
 	uint64Value := uint64(intValue)
 	return &uint64Value, nil
 }
+
+func GetFundAdmin(stub shim.ChaincodeStubInterface, fundid string) string {
+
+	chainCodeFunc := "getAdmin"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(fundid))
+	channel := stub.GetChannelID()
+	response := stub.InvokeChaincode("fund", invokeArgs, channel)
+
+	adminaddress := string(response.Payload)
+
+	return adminaddress
+}
+
+func IsFundAdmin(stub shim.ChaincodeStubInterface, fundid string, owneraddress string) bool {
+
+	chainCodeFunc := "getAdmin"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(fundid))
+	channel := stub.GetChannelID()
+	response := stub.InvokeChaincode("fund", invokeArgs, channel)
+
+	if adminaddress == chkAddress {
+		return true
+	} else {
+		return false
+	}
+
+}
