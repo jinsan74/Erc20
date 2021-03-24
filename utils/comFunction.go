@@ -207,7 +207,9 @@ func IsFundAdmin(stub shim.ChaincodeStubInterface, fundid string, owneraddress s
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode("fund", invokeArgs, channel)
 
-	if adminaddress == chkAddress {
+	adminaddress := string(response.Payload)
+
+	if adminaddress == owneraddress {
 		return true
 	} else {
 		return false
