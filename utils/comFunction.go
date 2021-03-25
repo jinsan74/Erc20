@@ -88,6 +88,30 @@ func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []walle
 	return response
 }
 
+// DoTransferMulti is 토큰 TransferMulti
+func DoTransferMultiCheck(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
+
+	_, orgParam := stub.GetFunctionAndParameters()
+	walletMeta := wallet.WalletMeta{}
+	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
+	stTransferStr, _ := json.Marshal(stTransferMetaArr)
+	walletMeta.Transjdata = string(stTransferStr)
+	realTrans, _ := json.Marshal(walletMeta)
+
+	chainCodeFunc := "transferMultiCheck"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
+	channel := stub.GetChannelID()
+	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to transfer chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return sc.Response{Status: 501, Message: "transfer check Fail!", Payload: nil}
+	}
+
+	return response
+}
+
 // ToChaincodeArgs is 외부 체인코드 호출시 파라미터 만드는 함수
 func ToChaincodeArgs(args ...string) [][]byte {
 	bargs := make([][]byte, len(args))
