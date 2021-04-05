@@ -13,6 +13,16 @@ import (
 	"github.com/jinsan74/Erc20/wallet"
 )
 
+type FundMeta struct {
+	ObjectType string `json:"objecType"`
+	Fundid     string `json:"fundid"`
+	Cnt        int64  `json:"cnt"`
+	Amount     int64  `json:"amount"`
+	Waddress   string `json:"waddress"`
+	Credt      int64  `json:"credt"`
+	Upddt      int64  `json:"upddt"`
+}
+
 // DoTransfer is 토큰 Transfer
 func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName string) sc.Response {
 
@@ -89,28 +99,28 @@ func DoTransferMulti(stub shim.ChaincodeStubInterface, stTransferMetaArr []walle
 }
 
 // DoTransferMulti is 토큰 TransferMulti
-func DoTransferMultiCheck(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
+// func DoTransferMultiCheck(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
 
-	_, orgParam := stub.GetFunctionAndParameters()
-	walletMeta := wallet.WalletMeta{}
-	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
-	stTransferStr, _ := json.Marshal(stTransferMetaArr)
-	walletMeta.Transjdata = string(stTransferStr)
-	realTrans, _ := json.Marshal(walletMeta)
+// 	_, orgParam := stub.GetFunctionAndParameters()
+// 	walletMeta := wallet.WalletMeta{}
+// 	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
+// 	stTransferStr, _ := json.Marshal(stTransferMetaArr)
+// 	walletMeta.Transjdata = string(stTransferStr)
+// 	realTrans, _ := json.Marshal(walletMeta)
 
-	chainCodeFunc := "transferMultiCheck"
-	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
-	channel := stub.GetChannelID()
-	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
+// 	chainCodeFunc := "transferMultiCheck"
+// 	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
+// 	channel := stub.GetChannelID()
+// 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
 
-	if response.Status != shim.OK {
-		errStr := fmt.Sprintf("Failed to transfer chaincode. Got error: %s", string(response.Payload))
-		fmt.Printf(errStr)
-		return sc.Response{Status: 501, Message: "transfer check Fail!", Payload: nil}
-	}
+// 	if response.Status != shim.OK {
+// 		errStr := fmt.Sprintf("Failed to transfer chaincode. Got error: %s", string(response.Payload))
+// 		fmt.Printf(errStr)
+// 		return sc.Response{Status: 501, Message: "transfer check Fail!", Payload: nil}
+// 	}
 
-	return response
-}
+// 	return response
+// }
 
 // ToChaincodeArgs is 외부 체인코드 호출시 파라미터 만드는 함수
 func ToChaincodeArgs(args ...string) [][]byte {
@@ -214,29 +224,22 @@ func ConvertStringToUint64(typeName, value string) (*uint64, error) {
 
 func GetFundAdmin(stub shim.ChaincodeStubInterface, fundid string) string {
 
-	chainCodeFunc := "getAdmin"
-	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(fundid))
+	chainCodeFunc := "fundSearch"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, "1", fundid, "")
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode("fund", invokeArgs, channel)
 
-	adminaddress := string(response.Payload)
+	fundMeta := FundMeta{}
+	json.Unmarshal([]byte(response.Payload), &fundMeta)
 
-	return adminaddress
+	return fundMeta.Waddress
 }
 
 func IsFundAdmin(stub shim.ChaincodeStubInterface, fundid string, owneraddress string) bool {
-
-	chainCodeFunc := "getAdmin"
-	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(fundid))
-	channel := stub.GetChannelID()
-	response := stub.InvokeChaincode("fund", invokeArgs, channel)
-
-	adminaddress := string(response.Payload)
-
+	adminaddress := GetFundAdmin(stub, fundid)
 	if adminaddress == owneraddress {
 		return true
 	} else {
 		return false
 	}
-
 }
