@@ -224,15 +224,19 @@ func ConvertStringToUint64(typeName, value string) (*uint64, error) {
 
 func GetFundAdmin(stub shim.ChaincodeStubInterface, fundid string) string {
 
-	chainCodeFunc := "fundSearch"
-	invokeArgs := ToChaincodeArgs(chainCodeFunc, "1", fundid, "")
+	chainCodeFunc := "fundAddressSearch"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, fundid)
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode("fund", invokeArgs, channel)
 
-	fundMeta := FundMeta{}
-	json.Unmarshal([]byte(response.Payload), &fundMeta)
+	address := string(response.Payload)
 
-	return fundMeta.Waddress
+	fmt.Println("FUND ADMIN:", fundid, address)
+
+	//fundMeta := FundMeta{}
+	//json.Unmarshal([]byte(response.Payload), &fundMeta)
+
+	return address
 }
 
 func IsFundAdmin(stub shim.ChaincodeStubInterface, fundid string, owneraddress string) bool {
