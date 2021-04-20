@@ -13,16 +13,6 @@ import (
 	"github.com/jinsan74/Erc20/wallet"
 )
 
-type FundMeta struct {
-	ObjectType string `json:"objecType"`
-	Fundid     string `json:"fundid"`
-	Cnt        int64  `json:"cnt"`
-	Amount     int64  `json:"amount"`
-	Waddress   string `json:"waddress"`
-	Credt      int64  `json:"credt"`
-	Upddt      int64  `json:"upddt"`
-}
-
 // DoTransfer is 토큰 Transfer
 func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName string) sc.Response {
 
