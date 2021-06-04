@@ -114,7 +114,7 @@ func DoTransferMultiNoneSafety(stub shim.ChaincodeStubInterface, stTransferMetaA
 func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMetaN, tokenName string) sc.Response {
 
 	_, orgParam := stub.GetFunctionAndParameters()
-	walletMeta := wallet.WalletMetaN{}
+	walletMeta := wallet.WalletMeta{}
 	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
 	stTransferStr, _ := json.Marshal(stTransferMetaArr)
 	walletMeta.Transjdata = string(stTransferStr)
@@ -127,8 +127,8 @@ func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMeta
 
 	if response.Status != shim.OK {
 		errStr := fmt.Sprintf("Failed to transfer chaincode. Got error: %s", string(response.Payload))
-		fmt.Printf(errStr)
-		return sc.Response{Status: 501, Message: "transfer Fail!", Payload: nil}
+		//fmt.Printf(errStr)
+		return sc.Response{Status: 501, Message: errStr, Payload: nil}
 	}
 
 	return response
