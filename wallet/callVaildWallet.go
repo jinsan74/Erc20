@@ -13,6 +13,12 @@ type TransferMeta struct {
 	Amount  uint64 `json:"amount,omitempty"`
 }
 
+type TransferMetaN struct {
+	FromAddress string `json:"fromaddress"`
+	ToAddress   string `json:"toaddress"`
+	Amount      uint64 `json:"amount,omitempty"`
+}
+
 // WalletMeta is 지갑 데이터 구조체
 type WalletMeta struct {
 	Publickey  string `json:"publickey,omitempty"`
