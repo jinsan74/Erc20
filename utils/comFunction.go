@@ -120,7 +120,7 @@ func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMeta
 	walletMeta.Transjdata = string(stTransferStr)
 	realTrans, _ := json.Marshal(walletMeta)
 
-	chainCodeFunc := "transferMultiNonSafetyN"
+	chainCodeFunc := "transferMultiNoneSafetyN"
 	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
 	channel := stub.GetChannelID()
 	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
