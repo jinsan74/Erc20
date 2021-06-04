@@ -114,7 +114,7 @@ func DoTransferMultiNoneSafety(stub shim.ChaincodeStubInterface, stTransferMetaA
 func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMetaN, tokenName string) sc.Response {
 
 	_, orgParam := stub.GetFunctionAndParameters()
-	walletMeta := wallet.WalletMeta{}
+	walletMeta := wallet.WalletMetaN{}
 	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
 	stTransferStr, _ := json.Marshal(stTransferMetaArr)
 	walletMeta.Transjdata = string(stTransferStr)
