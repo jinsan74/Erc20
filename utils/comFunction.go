@@ -111,6 +111,29 @@ func DoTransferMultiNoneSafety(stub shim.ChaincodeStubInterface, stTransferMetaA
 	return response
 }
 
+func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
+
+	_, orgParam := stub.GetFunctionAndParameters()
+	walletMeta := wallet.WalletMeta{}
+	json.Unmarshal([]byte(orgParam[0]), &walletMeta)
+	stTransferStr, _ := json.Marshal(stTransferMetaArr)
+	walletMeta.Transjdata = string(stTransferStr)
+	realTrans, _ := json.Marshal(walletMeta)
+
+	chainCodeFunc := "transferMultiNonSafetyN"
+	invokeArgs := ToChaincodeArgs(chainCodeFunc, string(realTrans))
+	channel := stub.GetChannelID()
+	response := stub.InvokeChaincode(tokenName, invokeArgs, channel)
+
+	if response.Status != shim.OK {
+		errStr := fmt.Sprintf("Failed to transfer chaincode. Got error: %s", string(response.Payload))
+		fmt.Printf(errStr)
+		return sc.Response{Status: 501, Message: "transfer Fail!", Payload: nil}
+	}
+
+	return response
+}
+
 // DoTransferMulti is 토큰 TransferMulti
 // func DoTransferMultiCheck(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
 
