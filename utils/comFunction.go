@@ -111,7 +111,7 @@ func DoTransferMultiNoneSafety(stub shim.ChaincodeStubInterface, stTransferMetaA
 	return response
 }
 
-func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMeta, tokenName string) sc.Response {
+func DoTransferMultiNoneSafetyN(stub shim.ChaincodeStubInterface, stTransferMetaArr []wallet.TransferMetaN, tokenName string) sc.Response {
 
 	_, orgParam := stub.GetFunctionAndParameters()
 	walletMeta := wallet.WalletMeta{}
