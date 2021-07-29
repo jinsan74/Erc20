@@ -283,3 +283,51 @@ func IsFundAdmin(stub shim.ChaincodeStubInterface, fundid string, owneraddress s
 		return false
 	}
 }
+
+// shim 로그를 사용하기 위해서는 반드시 초기화가 필요함
+func InitLog() {
+	logger.SetLevel(shim.LogInfo)
+}
+
+// 로그 레벨을 변경
+func SetLogLevel(logLevel string) bool {
+	if logLevel == "INFO" {
+		logger.SetLevel(shim.LogInfo)
+	} else if logLevel == "DEBUG" {
+		logger.SetLevel(shim.LogDebug)
+	} else if logLevel == "ERROR" {
+		logger.SetLevel(shim.LogError)
+	} else {
+		return false
+	}
+	return true
+}
+
+func GetCallerInfo() (funcName string, line int) {
+	_, fn, line, ok := runtime.Caller(2)
+	if ok {
+		if index := strings.LastIndex(fn, "/"); index >= 0 {
+			fn = fn[index+1:]
+		}
+	} else {
+		fn = "???"
+		line = 1
+	}
+
+	return fn, line
+}
+
+func InfoLogger(infoLog string) {
+	funcName, line := GetCallerInfo()
+	logger.Infof("[%s:%d] %s\n", funcName, line, infoLog)
+}
+
+func DebugLogger(debugLog string) {
+	funcName, line := GetCallerInfo()
+	logger.Debugf("[%s:%d] %s\n", funcName, line, debugLog)
+}
+
+func ErrorLogger(errorLog string) {
+	funcName, line := GetCallerInfo()
+	logger.Errorf("[%s:%d] %s\n", funcName, line, errorLog)
+}
