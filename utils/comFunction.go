@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -12,6 +14,8 @@ import (
 	"github.com/jinsan74/Erc20/model"
 	"github.com/jinsan74/Erc20/wallet"
 )
+
+var logger = shim.NewLogger("sto-logger")
 
 // DoTransfer is 토큰 Transfer
 func DoTransfer(stub shim.ChaincodeStubInterface, transParam string, tokenName string) sc.Response {
